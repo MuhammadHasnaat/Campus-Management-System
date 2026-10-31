@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Campus Management System</title>
+
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+body{margin:0;font-family:Inter,Arial;background:#0f172a;color:#e5e7eb}
+.app{display:flex;height:100vh}
+.sidebar{width:240px;background:#020617;padding:20px}
+.sidebar h2{color:#facc15;text-align:center}
+.sidebar button{
+width:100%;background:none;border:none;color:#e5e7eb;
+padding:12px;margin:6px 0;border-radius:8px;text-align:left;cursor:pointer
+}
+.sidebar button:hover{background:#1e293b}
+.main{flex:1;padding:30px;overflow:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.card{background:#020617;padding:20px;border-radius:14px;border:1px solid #1e293b}
+.card h3{color:#facc15}
+.table{width:100%;border-collapse:collapse;margin-top:20px}
+.table th,.table td{padding:12px;border-bottom:1px solid #1e293b}
+.table th{color:#facc15}
+input{
+width:100%;padding:10px;margin:8px 0;
+background:#020617;border:1px solid #1e293b;color:#fff;border-radius:8px
+}
+button.add{background:#facc15;color:#000;padding:10px;border:none;border-radius:8px;cursor:pointer}
+button.del{background:#ef4444;color:#fff;padding:6px 10px;border:none;border-radius:6px;cursor:pointer}
+button.logout{background:#334155;color:#fff;padding:8px;border:none;border-radius:6px;cursor:pointer}
+.form-box{max-width:400px;background:#020617;padding:20px;border-radius:14px;border:1px solid #1e293b;margin-bottom:20px}
+.login-box{
+max-width:360px;margin:120px auto;background:#020617;
+padding:30px;border-radius:16px;border:1px solid #1e293b;text-align:center
+}
+.login-box h2{color:#facc15}
+</style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+function App(){
+
+/* LOGIN STATE */
+const [isLogged,setIsLogged]=React.useState(
+    localStorage.getItem("login")==="true"
+);
+const [username,setUsername]=React.useState("");
+const [password,setPassword]=React.useState("");
+
+/* CMS STATES */
+const [page,setPage]=React.useState("dashboard");
+const [students,setStudents]=React.useState([]);
+const [teachers,setTeachers]=React.useState([]);
+const [courses,setCourses]=React.useState([]);
+
+const [sName,setSName]=React.useState("");
+const [sId,setSId]=React.useState("");
+const [sClass,setSClass]=React.useState("");
+
+const [tName,setTName]=React.useState("");
+const [tSub,setTSub]=React.useState("");
+
+const [cName,setCName]=React.useState("");
+
+/* LOGIN FUNCTION */
+function login(){
+    if(username==="Hasnaat" && password==="Hasnaat1234"){
+        localStorage.setItem("login","true");
+        setIsLogged(true);
+    } else {
+        alert("Invalid Login");
+    }
+}
+
+/* LOGOUT */
+function logout(){
+    localStorage.removeItem("login");
+    setIsLogged(false);
+    }
+
+if(!isLogged){
+return(
+<div className="login-box">
+<h2>🔐 CMS Login</h2>
+<input placeholder="Username" onChange={e=>setUsername(e.target.value)}/>
+<input type="password" placeholder="Password" onChange={e=>setPassword(e.target.value)}/>
+<button className="add" onClick={login}>Login</button>
+</div>
+)
+}
+
+/* CMS UI */
+return(
+<div className="app">
+<div className="sidebar">
+<h2>🎓 CMS</h2>
+<button onClick={()=>setPage("dashboard")}>📊 Dashboard</button>
+<button onClick={()=>setPage("students")}>🎓 Students</button>
+<button onClick={()=>setPage("teachers")}>👨‍🏫 Teachers</button>
+<button onClick={()=>setPage("courses")}>📚 Courses</button>
+<button className="logout" onClick={logout}>🚪 Logout</button>
+</div>
+
+<div className="main">
+
+{page==="dashboard" && (
+<>
+<h1>Dashboard</h1>
+<div className="cards">
+<div className="card"><h3>Students</h3><p>{students.length}</p></div>
+<div className="card"><h3>Teachers</h3><p>{teachers.length}</p></div>
+<div className="card"><h3>Courses</h3><p>{courses.length}</p></div>
+</div>
+</>
+)}
+
+{page==="students" && (
+<>
+<h1>Students</h1>
+<div className="form-box">
+<input placeholder="Name" value={sName} onChange={e=>setSName(e.target.value)}/>
+<input placeholder="ID" value={sId} onChange={e=>setSId(e.target.value)}/>
+<input placeholder="Class" value={sClass} onChange={e=>setSClass(e.target.value)}/>
+<button className="add" onClick={()=>{
+setStudents([...students,{name:sName,id:sId,class:sClass}]);
+setSName("");setSId("");setSClass("");
+}}>Add Student</button>
+</div>
+
+<table className="table">
+<thead><tr><th>Name</th><th>ID</th><th>Class</th><th>Action</th></tr></thead>
+<tbody>
+{students.map((s,i)=>(
+<tr key={i}>
+<td>{s.name}</td><td>{s.id}</td><td>{s.class}</td>
+<td><button className="del" onClick={()=>setStudents(students.filter((_,x)=>x!==i))}>Delete</button></td>
+</tr>
+))}
+</tbody>
+</table>
+</>
+)}
+
+{page==="teachers" && (
+<>
+<h1>Teachers</h1>
+<div className="form-box">
+<input placeholder="Name" value={tName} onChange={e=>setTName(e.target.value)}/>
+<input placeholder="Subject" value={tSub} onChange={e=>setTSub(e.target.value)}/>
+<button className="add" onClick={()=>{
+setTeachers([...teachers,{name:tName,subject:tSub}]);
+setTName("");setTSub("");
+}}>Add Teacher</button>
+</div>
+
+<table className="table">
+<thead><tr><th>Name</th><th>Subject</th><th>Action</th></tr></thead>
+<tbody>
+{teachers.map((t,i)=>(
+<tr key={i}>
+<td>{t.name}</td><td>{t.subject}</td>
+<td><button className="del" onClick={()=>setTeachers(teachers.filter((_,x)=>x!==i))}>Delete</button></td>
+</tr>
+))}
+</tbody>
+</table>
+</>
+)}
+
+{page==="courses" && (
+<>
+<h1>Courses</h1>
+<div className="form-box">
+<input placeholder="Course Name" value={cName} onChange={e=>setCName(e.target.value)}/>
+<button className="add" onClick={()=>{
+setCourses([...courses,{name:cName}]);setCName("");
+}}>Add Course</button>
+</div>
+
+<table className="table">
+<thead><tr><th>Course</th><th>Action</th></tr></thead>
+<tbody>
+{courses.map((c,i)=>(
+<tr key={i}>
+<td>{c.name}</td>
+<td><button className="del" onClick={()=>setCourses(courses.filter((_,x)=>x!==i))}>Delete</button></td>
+</tr>
+))}
+</tbody>
+</table>
+</>
+)}
+
+</div>
+</div>
+)
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>)
+
+</script>
+</body>
+</html>
